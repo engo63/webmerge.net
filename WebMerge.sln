@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{22BD43EE-DE02-43AE-AF48-6DDDF89A54C4}"
 EndProject
@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Client", "src\WebMerge.Client\WebMerge.Client.csproj", "{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Tests", "test\WebMerge.Tests\WebMerge.Tests.csproj", "{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Tests2", "WebMerge.Tests2\WebMerge.Tests2.csproj", "{98402B3E-90F2-4A11-B43F-91548FE4625D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Client.Core", "WebMerge.Client.Core\WebMerge.Client.Core.csproj", "{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +29,14 @@ Global
 		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +44,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA} = {22BD43EE-DE02-43AE-AF48-6DDDF89A54C4}
 		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9} = {797BFED1-C4B8-4B71-94A5-4326E0137FE3}
+		{98402B3E-90F2-4A11-B43F-91548FE4625D} = {797BFED1-C4B8-4B71-94A5-4326E0137FE3}
+		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475} = {22BD43EE-DE02-43AE-AF48-6DDDF89A54C4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B9A2F21-2F90-4E70-80C0-D1A7F08B38D4}
 	EndGlobalSection
 EndGlobal
