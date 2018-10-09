@@ -24,13 +24,13 @@ namespace WebMerge.Tests2
             messageHandler = new TestingEnabledHttpMessageHandler();
             config = new Mock<IApiConfigurator>();
 
-            var apiKey = "23123";
-            var apiSecret = "shhhh";
-            var baseUri = new Uri("https://test.io");
+            config.Setup(x => x.ApiKey).Returns("API_KEY");
+            config.Setup(x => x.ApiSecret).Returns("API_SECRET");
+            config.Setup(x => x.BaseUri).Returns(new Uri("https://test.io"));
 
             var httpClient = new HttpClient(messageHandler);
 
-            client = new WebMergeClient(apiKey, apiSecret, baseUri);
+            client = new WebMergeClient(httpClient, config.Object);
         }
 
         private const string DefaultResponseDocumentJson =
