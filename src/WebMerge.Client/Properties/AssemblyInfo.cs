@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("WebMerge.Client")]
+[assembly: AssemblyTitle("WebMerge.Client.Local")]
 [assembly: AssemblyDescription("C# Library for the WebMerge API. See https://www.webmerge.me/ for more information")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("csharpsi")]
-[assembly: AssemblyProduct("WebMerge.Client")]
+[assembly: AssemblyProduct("WebMerge.Client (Not used by NuGet")]
 [assembly: AssemblyCopyright("Copyright © csharpsi 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -37,5 +37,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.0.24.*")]
-[assembly: AssemblyFileVersion("2.0.24.0")]
+[assembly: AssemblyVersion("1.0.0.*")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
