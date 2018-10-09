@@ -25,6 +25,10 @@ namespace WebMerge.Client.Core
 
         public WebMergeClient(HttpClient httpClient, IApiConfigurator configurator)
         {
+            if (httpClient == null)
+            {
+
+            }
             this.httpClient = httpClient;
             this.configurator = configurator;
             AddAuthentication();

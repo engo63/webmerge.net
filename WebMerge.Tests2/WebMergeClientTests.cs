@@ -13,7 +13,7 @@ using WebMerge.Client.Core.Utils;
 using System.IO;
 using System.Collections.Generic;
 
-namespace WebMerge.Tests2
+namespace WebMerge.Tests
 {
     [TestFixture]
     public class WebMergeClientTests

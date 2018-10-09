@@ -79,12 +79,6 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\WebMerge.Client\WebMerge.Client.csproj">
-      <Project>{1195fd70-5f4e-4aee-8f63-aee1e3e76dea}</Project>
-      <Name>WebMerge.Client</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
