@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace WebMerge.Client.Converters
+namespace WebMerge.Client.Core.Converters
 {
     public class WriteToStringConverter : JsonConverter
     {

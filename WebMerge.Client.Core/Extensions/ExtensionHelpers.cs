@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebMerge.Client.Extensions
+namespace WebMerge.Client.Core.Extensions
 {
     public static class ExtensionHelpers
     {

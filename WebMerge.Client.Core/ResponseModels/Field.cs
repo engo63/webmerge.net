@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebMerge.Client.ResponseModels
+namespace WebMerge.Client.Core.ResponseModels
 {
     public class Field
     {

@@ -1,0 +1,667 @@
+﻿using System;
+using WebMerge.Client.Core;
+using System.Net.Http;
+using NUnit.Framework;
+using Moq;
+using System.Threading.Tasks;
+using WebMerge.Client.Core.ResponseModels;
+using Newtonsoft.Json;
+using System.Text;
+using WebMerge.Client.Core.RequestModels;
+using WebMerge.Client.Core.Enums;
+using WebMerge.Client.Core.Utils;
+using System.IO;
+using System.Collections.Generic;
+
+namespace WebMerge.Tests2
+{
+    [TestFixture]
+    public class WebMergeClientTests
+    {
+        [SetUp]
+        public void SetUp()
+        {
+            messageHandler = new TestingEnabledHttpMessageHandler();
+            config = new Mock<IApiConfigurator>();
+
+            var apiKey = "23123";
+            var apiSecret = "shhhh";
+            var baseUri = new Uri("https://test.io");
+
+            var httpClient = new HttpClient(messageHandler);
+
+            client = new WebMergeClient(apiKey, apiSecret, baseUri);
+        }
+
+        private const string DefaultResponseDocumentJson =
+            @"{
+                ""id"":""123"",
+                ""key"":""dockey"",
+                ""type"":""html"",
+                ""name"":""Test"",
+                ""output"":""pdf"",
+                ""size"":null,
+                ""size_width"":null,
+                ""size_height"":null,
+                ""active"": ""1"",
+                ""url"":""https://www.test.io"",
+                ""fields"": [ 
+                    {""key"": ""456"", ""name"": ""FieldName""}
+                ]
+            }";
+
+        private IWebMergeClient client;
+        private TestingEnabledHttpMessageHandler messageHandler;
+        private Mock<IApiConfigurator> config;
+
+        [Test]
+        public async Task AuthHeaderIsCorrect()
+        {
+            var content = JsonConvert.SerializeObject(new ActionResponse { Success = true });
+            messageHandler.AddResponse(new Uri("https://test.io/merge/123/key"), content);
+
+            messageHandler.RequestSent += req =>
+            {
+                var header = req.Headers.Authorization;
+                var token = Convert.ToBase64String(Encoding.UTF8.GetBytes("API_KEY:API_SECRET"));
+
+                Assert.NotNull(header);
+                Assert.That(header.Scheme, Is.EqualTo("Basic"));
+                Assert.That(header.Parameter, Is.EqualTo(token));
+            };
+
+            await client.MergeDocumentAsync(123, "key", new { Foo = "Bar" }, false);
+        }
+
+        [Test]
+        public async Task CopyDocument()
+        {
+            const string exampleResponse = @"
+            {
+                ""id"":""789789"",
+                ""key"":""asdl4k"",
+                ""type"":""html"",
+                ""name"":""1040 EZier - CA"",
+                ""output"":""pdf"",
+                ""size"":"""",
+                ""size_width"":""8.5"",
+                ""size_height"":""11"",
+                ""active"":""1"",
+                ""url"":""https://www.webmerge.me/merge/789789/asdl4k"",
+                ""fields"":[
+    	            {""key"":""aflekjf409t3j4mg30m409m"", ""name"":""FirstName""},
+    	            {""key"":""3to3igj3g3gt94j9304jfqw"", ""name"":""LastName""},
+    	            {""key"":""t43j0grjaslkfje304vj9we"", ""name"":""Email""},
+    	            {""key"":""3jg34gj0gj3gjq0gj0r9gje"", ""name"":""Phone""}
+                ]
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/42/copy"), exampleResponse);
+
+            var result = await client.CopyDocumentAsync(42, "1040 EZier - CA");
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Name, Is.EqualTo("1040 EZier - CA"));
+        }
+
+        [Test]
+        public async Task CreateDocumentFromFile()
+        {
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), DefaultResponseDocumentJson);
+
+            var fileBytes = Encoding.UTF8.GetBytes("This is a file");
+            var expectedFileContents = Convert.ToBase64String(fileBytes);
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsAsync<DocumentRequest>().Result;
+                Assert.NotNull(body);
+
+                Assert.That(body.DocumentType, Is.EqualTo(DocumentType.Docx));
+                Assert.That(body.Html, Is.Null);
+                Assert.That(body.FileContents, Is.EqualTo(expectedFileContents));
+            };
+
+            var request = new FileDocumentRequest("Test", fileBytes, DocumentType.Docx);
+            var document = await client.CreateDocumentAsync(request);
+
+            Assert.NotNull(document);
+            Assert.That(document.Name, Is.EqualTo("Test"));
+        }
+
+        [Test]
+        public async Task CreateDocumentFromFileOnDisk()
+        {
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), DefaultResponseDocumentJson);
+
+            var fileBytes = Encoding.UTF8.GetBytes("This is a file");
+            const string path = "D:\\path\\to\\file.docx";
+
+            FileHelper.ExistsFunc = p => p.Equals(path);
+            FileHelper.FileReadFunc = p => fileBytes;
+
+            var expectedFileContents = Convert.ToBase64String(fileBytes);
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsAsync<DocumentRequest>().Result;
+                Assert.NotNull(body);
+
+                Assert.That(body.DocumentType, Is.EqualTo(DocumentType.Docx));
+                Assert.That(body.Html, Is.Null);
+                Assert.That(body.FileContents, Is.EqualTo(expectedFileContents));
+                Assert.That(body.Folder, Is.EqualTo("contracts"));
+                Assert.That(body.OutputType, Is.EqualTo(DocumentOutputType.Email));
+                Assert.That(body.OutputName, Is.EqualTo("From {$FirstName}"));
+                Assert.That(body.Name, Is.EqualTo("Test"));
+            };
+
+            var request = new FileDocumentRequest("Test", path, DocumentType.Docx, DocumentOutputType.Email)
+            {
+                Folder = "contracts",
+                OutputName = "From {$FirstName}"
+            };
+
+            var document = await client.CreateDocumentAsync(request);
+
+            Assert.NotNull(document);
+            Assert.That(document.Name, Is.EqualTo("Test"));
+        }
+
+        [Test]
+        public async Task CreateDocumentFromHtml()
+        {
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), DefaultResponseDocumentJson);
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsAsync<DocumentRequest>().Result;
+                Assert.NotNull(body);
+
+                Assert.That(body.DocumentType, Is.EqualTo(DocumentType.Html));
+                Assert.That(body.OutputType, Is.EqualTo(DocumentOutputType.Pdf));
+                Assert.That(body.FileContents, Is.Null);
+                Assert.That(body.Html, Is.EqualTo("<h1>{$Test}</h1>"));
+            };
+
+            var request = new HtmlDocumentRequest("Test", "<h1>{$Test}</h1>");
+
+            var document = await client.CreateDocumentAsync(request);
+
+            //var document = await client.CreateDocument("Test").FromHtml("<h1>{$Test}</h1>");
+
+            Assert.NotNull(document);
+            Assert.That(document.Name, Is.EqualTo("Test"));
+        }
+
+        [Test]
+        public async Task DeleteDataRoute()
+        {
+            const string exampleResponse = @"
+            {
+                ""success"" : ""1""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/routes/123"), exampleResponse);
+
+            var result = await client.DeleteDataRouteAsync(123);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Success, Is.EqualTo(true));
+        }
+
+        [Test]
+        public async Task DeleteDocument()
+        {
+            const string exampleResponse = @"
+            {
+                ""success"" : ""1""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/42"), exampleResponse);
+
+            var result = await client.DeleteDocumentAsync(42);
+
+            Assert.That(result.Success, Is.True);
+        }
+
+        [Test]
+        public async Task GetDataRoute()
+        {
+            const string exampleResponse = @"
+            {
+                ""id"":""129578"",
+                ""key"":""l3kjs"",
+                ""name"":""Contract"",
+                ""url"":""https://www.webmerge.me/route/129578/13kjs""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/routes/129578"), exampleResponse);
+
+            var result = await client.GetDataRouteAsync(129578);
+
+            Assert.That(result.Id, Is.EqualTo(129578));
+            Assert.That(result.Key, Is.EqualTo("l3kjs"));
+            Assert.That(result.Name, Is.EqualTo("Contract"));
+            Assert.That(result.Url, Is.EqualTo("https://www.webmerge.me/route/129578/13kjs"));
+        }
+
+        [Test]
+        public async Task GetDataRouteFields()
+        {
+            const string exampleResponse = @"
+            [
+                {""key"":""aflekjf409t3j4mg30m409m"", ""name"":""FirstName""},
+                {""key"":""3to3igj3g3gt94j9304jfqw"", ""name"":""LastName""},
+                {""key"":""t43j0grjaslkfje304vj9we"", ""name"":""Email""},
+                {""key"":""3jg34gj0gj3gjq0gj0r9gje"", ""name"":""Phone""}
+            ]";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/routes/123/fields"), exampleResponse);
+
+            var result = await client.GetDataRouteFieldsAsync(123);
+
+            Assert.That(result, Has.Count.EqualTo(4));
+
+            Assert.That(result[0].Key, Is.EqualTo("aflekjf409t3j4mg30m409m"));
+            Assert.That(result[0].Name, Is.EqualTo("FirstName"));
+
+            Assert.That(result[1].Key, Is.EqualTo("3to3igj3g3gt94j9304jfqw"));
+            Assert.That(result[1].Name, Is.EqualTo("LastName"));
+
+            Assert.That(result[2].Key, Is.EqualTo("t43j0grjaslkfje304vj9we"));
+            Assert.That(result[2].Name, Is.EqualTo("Email"));
+
+            Assert.That(result[3].Key, Is.EqualTo("3jg34gj0gj3gjq0gj0r9gje"));
+            Assert.That(result[3].Name, Is.EqualTo("Phone"));
+        }
+
+        [Test]
+        public async Task GetDataRouteList()
+        {
+            const string exampleResponse = @"
+            [
+                {
+                    ""id"":""129578"",
+                    ""key"":""l3kjs"",
+                    ""name"":""Contract"",
+                    ""url"":""https://www.webmerge.me/route/129578/13kjs""
+                },{
+                    ""id"":""139482"",
+                    ""key"":""lk43k"",
+                    ""name"":""New Client Agreement"",
+                    ""url"":""https://www.webmerge.me/route/139482/lk43k""
+                }
+            ]";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/routes"), exampleResponse);
+
+            var result = await client.GetDataRouteListAsync();
+
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.That(result[0].Id, Is.EqualTo(129578));
+            Assert.That(result[0].Key, Is.EqualTo("l3kjs"));
+            Assert.That(result[0].Name, Is.EqualTo("Contract"));
+            Assert.That(result[0].Url, Is.EqualTo("https://www.webmerge.me/route/129578/13kjs"));
+
+            Assert.That(result[1].Id, Is.EqualTo(139482));
+            Assert.That(result[1].Key, Is.EqualTo("lk43k"));
+            Assert.That(result[1].Name, Is.EqualTo("New Client Agreement"));
+            Assert.That(result[1].Url, Is.EqualTo("https://www.webmerge.me/route/139482/lk43k"));
+        }
+
+        [Test]
+        public async Task GetDocumentFields()
+        {
+            const string exampleResponse = @"
+            [
+                {""key"":""aflekjf409t3j4mg30m409m"", ""name"":""FirstName""},
+                {""key"":""3to3igj3g3gt94j9304jfqw"", ""name"":""LastName""},
+                {""key"":""t43j0grjaslkfje304vj9we"", ""name"":""Email""},
+                {""key"":""3jg34gj0gj3gjq0gj0r9gje"", ""name"":""Phone""}
+            ]";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/42/fields"), exampleResponse);
+
+            var fields = await client.GetDocumentFieldsAsync(42);
+
+            Assert.That(fields, Has.Count.EqualTo(4));
+            Assert.That(fields[0].Name, Is.EqualTo("FirstName"));
+            Assert.That(fields[0].Key, Is.EqualTo("aflekjf409t3j4mg30m409m"));
+        }
+
+        [Test]
+        public async Task GetDocumentList()
+        {
+            const string exampleResponse = @"
+            [
+                {
+                    ""id"":""436346"",
+                    ""key"":""firm3"",
+                    ""type"":""pdf"",
+                    ""name"":""1040 EZ"",
+                    ""output"":""pdf"",
+                    ""size"":"""",
+                    ""size_width"":""8.5"",
+                    ""size_height"":""11"",
+                    ""active"":""1"",
+    	            ""url"":""https://www.webmerge.me/merge/2436346/firm3""
+                },{
+                    ""id"":""436347"",
+                    ""key"":""7icxf"",
+                    ""type"":""pdf"",
+                    ""name"":""1040 EZ - COPY"",
+                    ""output"":""pdf"",
+                    ""size"":"""",
+                    ""size_width"":""8.5"",
+                    ""size_height"":""16"",
+                    ""active"":""0"",
+    	            ""url"":""https://www.webmerge.me/merge/436347/7icxf""
+                }
+            ]";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), exampleResponse);
+
+            var documents = await client.GetDocumentListAsync();
+
+            Assert.That(documents, Has.Count.EqualTo(2));
+            var doc1 = documents[0];
+            var doc2 = documents[1];
+
+            Assert.That(doc1.Id, Is.EqualTo(436346));
+            Assert.That(doc1.Key, Is.EqualTo("firm3"));
+            Assert.That(doc1.DocumentType, Is.EqualTo(DocumentType.Pdf));
+            Assert.That(doc1.Name, Is.EqualTo("1040 EZ"));
+            Assert.That(doc1.OutputType, Is.EqualTo(DocumentOutputType.Pdf));
+            Assert.That(doc1.SizeWidth, Is.EqualTo("8.5"));
+            Assert.That(doc1.SizeHeight, Is.EqualTo("11"));
+            Assert.That(doc1.IsActive, Is.EqualTo(true));
+            Assert.That(doc1.Url, Is.EqualTo("https://www.webmerge.me/merge/2436346/firm3"));
+
+            Assert.That(doc2.Id, Is.EqualTo(436347));
+            Assert.That(doc2.Key, Is.EqualTo("7icxf"));
+            Assert.That(doc2.DocumentType, Is.EqualTo(DocumentType.Pdf));
+            Assert.That(doc2.Name, Is.EqualTo("1040 EZ - COPY"));
+            Assert.That(doc2.OutputType, Is.EqualTo(DocumentOutputType.Pdf));
+            Assert.That(doc2.SizeWidth, Is.EqualTo("8.5"));
+            Assert.That(doc2.SizeHeight, Is.EqualTo("16"));
+            Assert.That(doc2.IsActive, Is.EqualTo(false));
+            Assert.That(doc2.Url, Is.EqualTo("https://www.webmerge.me/merge/436347/7icxf"));
+        }
+
+        [Test]
+        public async Task CorrectlyDeserialiseADocument()
+        {
+            const string exampleResponse = @"
+            [
+                {
+                    ""id"":""436346"",
+                    ""key"":""firm3"",
+                    ""type"":""pdf"",
+                    ""name"":""1040 EZ"",
+                    ""output"":""pdf"",
+                    ""size"":"""",
+                    ""size_width"":""8.5in"",
+                    ""size_height"":""11in"",
+                    ""active"":""1"",
+    	            ""url"":""https://www.webmerge.me/merge/2436346/firm3""
+                }
+            ]";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), exampleResponse);
+
+            var documents = await client.GetDocumentListAsync();
+
+            Assert.That(documents, Has.Count.EqualTo(1));
+
+            var doc1 = documents[0];
+
+            Assert.That(doc1.Id, Is.EqualTo(436346));
+            Assert.That(doc1.Key, Is.EqualTo("firm3"));
+            Assert.That(doc1.DocumentType, Is.EqualTo(DocumentType.Pdf));
+            Assert.That(doc1.Name, Is.EqualTo("1040 EZ"));
+            Assert.That(doc1.OutputType, Is.EqualTo(DocumentOutputType.Pdf));
+            Assert.That(doc1.SizeWidth, Is.EqualTo("8.5in"));
+            Assert.That(doc1.SizeHeight, Is.EqualTo("11in"));
+            Assert.That(doc1.IsActive, Is.EqualTo(true));
+            Assert.That(doc1.Url, Is.EqualTo("https://www.webmerge.me/merge/2436346/firm3"));
+
+        }
+
+        [Test]
+        public async Task GetFileForDocument()
+        {
+            var fileBytes = Encoding.UTF8.GetBytes("This is a file");
+            var fileContents = Convert.ToBase64String(fileBytes);
+
+            var exampleResponse = $@"
+            {{
+                ""type"":""pdf"",
+                ""last_update"":""2015-03-24 16:34:20"",
+                ""contents"":""{fileContents}""
+            }}";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/42/file"), exampleResponse);
+
+            var file = await client.GetFileForDocumentAsync(42);
+
+            Assert.NotNull(file);
+            Assert.That(file.DocumentType, Is.EqualTo(DocumentType.Pdf));
+            Assert.That(file.LastUpdated, Is.EqualTo(new DateTime(2015, 3, 24, 16, 34, 20)));
+        }
+
+        [Test]
+        public async Task GetHtmlDocument()
+        {
+            const string exampleResponse = @"
+            {
+                ""id"":""436347"",
+                ""key"":""7icxf"",
+                ""type"":""pdf"",
+                ""name"":""1040 EZ - COPY"",
+                ""output"":""pdf"",
+                ""size"":"""",
+                ""size_width"":""8.5"",
+                ""size_height"":""16"",
+                ""active"":""0"",
+    	        ""url"":""https://www.webmerge.me/merge/436347/7icxf"",
+                ""html"": ""<p>This is some HTML with a {$Token}</p>""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/436347"), exampleResponse);
+
+            var document = await client.GetDocumentAsync(436347);
+
+            Assert.NotNull(document);
+            Assert.That(document.Id, Is.EqualTo(436347));
+            Assert.That(document.Key, Is.EqualTo("7icxf"));
+            Assert.That(document.DocumentType, Is.EqualTo(DocumentType.Pdf));
+            Assert.That(document.Name, Is.EqualTo("1040 EZ - COPY"));
+            Assert.That(document.OutputType, Is.EqualTo(DocumentOutputType.Pdf));
+            Assert.That(document.SizeWidth, Is.EqualTo("8.5"));
+            Assert.That(document.SizeHeight, Is.EqualTo("16"));
+            Assert.That(document.IsActive, Is.EqualTo(false));
+            Assert.That(document.Url, Is.EqualTo("https://www.webmerge.me/merge/436347/7icxf"));
+            Assert.That(document.Html, Is.EqualTo("<p>This is some HTML with a {$Token}</p>"));
+        }
+
+        [Test]
+        public async Task MergeDataRoute()
+        {
+            const string exampleResponse = @"
+            {
+                ""success"" : ""1""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/route/42/foo"), exampleResponse);
+
+            var result = await client.MergeDataRouteAsync(42, "foo", new { Foo = "Bar" });
+
+            Assert.That(result.Success, Is.True);
+        }
+
+        [Test]
+        public async Task MergeDataRouteWithMultipleDownload()
+        {
+            var file1 = Convert.ToBase64String(Encoding.UTF8.GetBytes("File1"));
+            var file2 = Convert.ToBase64String(Encoding.UTF8.GetBytes("File2"));
+
+            var exampleResponse = $@"
+            {{
+                ""success"":1,
+                ""files"": [
+                    {{""name"":""Invoice.pdf"", ""file_contents"": ""{file1}""}},
+                    {{""name"":""Thank You.pdf"", ""file_contents"": ""{file2}""}}
+                ]
+            }}";
+
+            messageHandler.AddResponse(new Uri("https://test.io/route/42/bar?download=1"), exampleResponse);
+
+            var result = await client.MergeDataRouteWithMultipleDownloadAsync(42, "bar", new { Foo = "Bar" });
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Files, Has.Count.EqualTo(2));
+            Assert.That(result.Files[0].FileContents, Is.EquivalentTo(Convert.FromBase64String(file1)));
+            Assert.That(result.Files[1].FileContents, Is.EquivalentTo(Convert.FromBase64String(file2)));
+        }
+
+        [Test]
+        public async Task MergeDataRouteWithSingleDownload()
+        {
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("This is a file"));
+
+            messageHandler.AddResponse(new Uri("https://test.io/route/42/foobar?download=1"), stream);
+
+            var result = await client.MergeDataRouteWithSingleDownloadAsync(42, "foobar", new { Testing = "ye" });
+
+            Assert.That(result, Is.Not.Null);
+
+            Assert.That(result, Is.EqualTo(stream));
+        }
+
+        [Test]
+        public void MergeDataRouteWithSingleDownloadButMultipleFilesProvided()
+        {
+            var file1 = Convert.ToBase64String(Encoding.UTF8.GetBytes("File1"));
+            var file2 = Convert.ToBase64String(Encoding.UTF8.GetBytes("File2"));
+
+            var exampleResponse = $@"
+            {{
+                ""success"":1,
+                ""files"": [
+                    {{""name"":""Invoice.pdf"", ""file_contents"": ""{file1}""}},
+                    {{""name"":""Thank You.pdf"", ""file_contents"": ""{file2}""}}
+                ]
+            }}";
+
+            messageHandler.AddResponse(new Uri("https://test.io/route/42/foobar?download=1"), exampleResponse);
+
+            Assert.ThrowsAsync<WebMergeException>(() => client.MergeDataRouteWithSingleDownloadAsync(42, "foobar", new { Testing = "ye" }));
+        }
+
+        [Test]
+        public async Task MergeDocument()
+        {
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("This is a file"));
+            var requestEventFired = false;
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsAsync<Dictionary<string, object>>().Result;
+
+                Assert.That(body.ContainsKey("FirstName"), Is.True, "Missing 'FirstName' key from request body");
+                Assert.That(body.ContainsKey("LastName"), Is.True, "Missing 'LastName' key from request body");
+                Assert.That(body.ContainsKey("Age"), Is.True, "Missing 'Age' key from request body");
+                Assert.That(body["FirstName"], Is.EqualTo("Jack"));
+                Assert.That(body["LastName"], Is.EqualTo("Daniel"));
+                Assert.That(body["Age"], Is.EqualTo(31));
+
+                requestEventFired = true;
+            };
+
+            messageHandler.AddResponse(new Uri("https://test.io/merge/123/key?download=1"), stream);
+
+            var requestBody = new Dictionary<string, object>
+            {
+                ["FirstName"] = "Jack",
+                ["LastName"] = "Daniel",
+                ["Age"] = 31
+            };
+
+            await client.MergeDocumentAndDownloadAsync(123, "key", requestBody);
+
+            Assert.That(requestEventFired, Is.True);
+        }
+
+        [Test]
+        public async Task MergeDocumentAsyncWithDownload()
+        {
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("This is a file"));
+
+            messageHandler.AddResponse(new Uri("https://test.io/merge/123/key?download=1"), stream);
+
+            var result = await client.MergeDocumentAndDownloadAsync(123, "key", new { Foo = "Bar" });
+
+            Assert.NotNull(result);
+            Assert.That(result, Is.EqualTo(stream));
+        }
+
+        [Test]
+        public async Task MergeDocumentAsyncWithoutDownload()
+        {
+            const string exampleResponse = @"
+            {
+                ""success"" : ""1""
+            }";
+
+            messageHandler.AddResponse(new Uri("https://test.io/merge/123/key"), exampleResponse);
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsStringAsync().Result;
+                Assert.That(body, Is.EqualTo(@"{""Foo"":""Bar""}"));
+            };
+
+            var result = await client.MergeDocumentAsync(123, "key", new { Foo = "Bar" });
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Success, Is.True);
+        }
+
+        [Test]
+        public async Task MergeDocumentInTestMode()
+        {
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("This is a file"));
+            messageHandler.AddResponse(new Uri("https://test.io/merge/123/key?download=1&test=1"), stream);
+
+            var result = await client.MergeDocumentAndDownloadAsync(123, "key", new { Foo = "Bar" }, true);
+
+            Assert.NotNull(result);
+            Assert.That(result, Is.EqualTo(stream));
+        }
+
+        [Test]
+        public async Task UpdateDocumentWithNewHtmlContent()
+        {
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents/123"), DefaultResponseDocumentJson);
+
+            messageHandler.RequestSent += req =>
+            {
+                var body = req.Content.ReadAsStringAsync().Result;
+                Assert.NotNull(body);
+
+                Assert.That(body, Is.EqualTo(@"{""html"":""<h1>This is a {$Test}</h1>""}"));
+            };
+
+            var request = new DocumentUpdateRequest
+            {
+                Html = "<h1>This is a {$Test}</h1>"
+            };
+
+            var document = await client.UpdateDocumentAsync(123, request);
+
+            Assert.NotNull(document);
+            Assert.That(document.Name, Is.EqualTo("Test"));
+        }
+    }
+}

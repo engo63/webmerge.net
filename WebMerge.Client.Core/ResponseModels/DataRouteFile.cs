@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using WebMerge.Client.Converters;
+using WebMerge.Client.Core.Converters;
 
-namespace WebMerge.Client.ResponseModels
+namespace WebMerge.Client.Core.ResponseModels
 {
     public class DataRouteFile
     {

@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using WebMerge.Client.Converters;
-using WebMerge.Client.Enums;
+using WebMerge.Client.Core.Converters;
+using WebMerge.Client.Core.Enums;
 
-namespace WebMerge.Client.RequestModels
+namespace WebMerge.Client.Core.RequestModels
 {
     public abstract class DocumentRequest
     {

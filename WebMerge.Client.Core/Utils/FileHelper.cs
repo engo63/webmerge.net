@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace WebMerge.Client.Utils
+namespace WebMerge.Client.Core.Utils
 {
     /*
     Allows for tests to override the method used for File IO

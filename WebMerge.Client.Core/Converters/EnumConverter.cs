@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace WebMerge.Client.Converters
+namespace WebMerge.Client.Core.Converters
 {
     public class EnumConverter : StringEnumConverter
     {

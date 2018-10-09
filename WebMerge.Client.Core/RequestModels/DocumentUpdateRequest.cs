@@ -1,4 +1,4 @@
-﻿namespace WebMerge.Client.RequestModels
+﻿namespace WebMerge.Client.Core.RequestModels
 {
     public class DocumentUpdateRequest : DocumentRequest
     {

@@ -1,4 +1,4 @@
-﻿namespace WebMerge.Client.Enums
+﻿namespace WebMerge.Client.Core.Enums
 {
     public enum DocumentType
     {

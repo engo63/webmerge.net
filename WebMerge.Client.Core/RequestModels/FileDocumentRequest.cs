@@ -1,8 +1,8 @@
 ﻿using System;
-using WebMerge.Client.Enums;
-using WebMerge.Client.Utils;
+using WebMerge.Client.Core.Enums;
+using WebMerge.Client.Core.Utils;
 
-namespace WebMerge.Client.RequestModels
+namespace WebMerge.Client.Core.RequestModels
 {
     public class FileDocumentRequest : DocumentRequest
     {

@@ -1,6 +1,6 @@
-﻿using WebMerge.Client.Enums;
+﻿using WebMerge.Client.Core.Enums;
 
-namespace WebMerge.Client.RequestModels
+namespace WebMerge.Client.Core.RequestModels
 {
     public class HtmlDocumentRequest : DocumentRequest
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebMerge.Client
+namespace WebMerge.Client.Core
 {
     public class WebMergeException : Exception
     {

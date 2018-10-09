@@ -7,19 +7,19 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using WebMerge.Client.Enums;
-using WebMerge.Client.RequestModels;
-using WebMerge.Client.ResponseModels;
+using WebMerge.Client.Core.Enums;
+using WebMerge.Client.Core.RequestModels;
+using WebMerge.Client.Core.ResponseModels;
 
-namespace WebMerge.Client
+namespace WebMerge.Client.Core
 {
     public class WebMergeClient : IWebMergeClient
     {
         private readonly IApiConfigurator configurator;
         private readonly HttpClient httpClient;
 
-        public WebMergeClient()
-            : this(new HttpClient(), new WebMergeConfiguration())
+        public WebMergeClient(string apiKey, string apiSecret, Uri baseUri)
+            : this(new HttpClient(), new WebMergeConfiguration(apiKey, apiSecret, baseUri))
         {
         }
 

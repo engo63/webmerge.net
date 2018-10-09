@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace WebMerge.Client.ResponseModels
+namespace WebMerge.Client.Core.ResponseModels
 {
     public class MultipleFileRouteRequestState : ActionResponse
     {

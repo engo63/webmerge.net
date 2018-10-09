@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using WebMerge.Client.RequestModels;
-using WebMerge.Client.ResponseModels;
+using WebMerge.Client.Core.RequestModels;
+using WebMerge.Client.Core.ResponseModels;
 
-namespace WebMerge.Client
+namespace WebMerge.Client.Core
 {
     public interface IWebMergeClient : IDisposable
     {
