@@ -18,12 +18,12 @@ namespace WebMerge.Client.Core
         private readonly IApiConfigurator configurator;
         private readonly HttpClient httpClient;
 
-        public WebMergeClient()
-            : this(new HttpClient(), new WebMergeConfiguration())
+        public WebMergeClient(string apiKey, string apiSecret, Uri baseUri)
+            : this(new HttpClient(), new WebMergeConfiguration(apiKey, apiSecret, baseUri))
         {
         }
 
-        public WebMergeClient(HttpClient httpClient, IApiConfigurator configurator)
+        internal WebMergeClient(HttpClient httpClient, IApiConfigurator configurator)
         {
             this.httpClient = httpClient;
             this.configurator = configurator;
