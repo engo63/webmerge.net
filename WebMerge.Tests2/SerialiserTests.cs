@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using WebMerge.Client.Core.Enums;
 using WebMerge.Client.Core.ResponseModels;
 
-namespace WebMerge.Tests
+namespace WebMerge.Client.Core.Tests
 {
 
     [TestFixture]

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebMerge.Tests
+namespace WebMerge.Client.Core.Tests
 {
     public class TestingEnabledHttpMessageHandler : HttpMessageHandler
     {

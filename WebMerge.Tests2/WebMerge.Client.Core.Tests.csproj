@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>WebMerge.Client.Core.Tests</AssemblyName>
+
+    <RootNamespace>WebMerge.Client.Core.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
