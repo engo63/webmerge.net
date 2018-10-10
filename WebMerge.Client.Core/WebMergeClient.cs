@@ -15,24 +15,21 @@ namespace WebMerge.Client.Core
 {
     public class WebMergeClient : IWebMergeClient
     {
-        private readonly IApiConfigurator configurator;
-        private readonly HttpClient httpClient;
-
-        public WebMergeClient()
-            : this(new HttpClient(), new WebMergeConfiguration())
-        {
-        }
+        private readonly IApiConfigurator _configurator;
+        private readonly HttpClient _httpClient;
 
         public WebMergeClient(HttpClient httpClient, IApiConfigurator configurator)
         {
             if (httpClient == null)
             {
-
+                throw new ArgumentNullException(nameof(httpClient));
             }
-            this.httpClient = httpClient;
-            this.configurator = configurator;
+
+            _configurator = configurator ?? throw new ArgumentNullException(nameof(configurator));
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
             AddAuthentication();
-            httpClient.BaseAddress = configurator.BaseUri;
+            _httpClient.BaseAddress = configurator.BaseUri;
         }
 
         public async Task<Stream> MergeDocumentAndDownloadAsync(int documentId, string documentKey, object mergeObject, bool testMode = false)
@@ -44,7 +41,7 @@ namespace WebMerge.Client.Core
                 endpoint += "&test=1";
             }
 
-            var response = await httpClient.PostAsJsonAsync(endpoint, mergeObject);
+            var response = await _httpClient.PostAsJsonAsync(endpoint, mergeObject);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsStreamAsync();
@@ -59,7 +56,7 @@ namespace WebMerge.Client.Core
                 endpoint += "?test=1";
             }
 
-            var response = await httpClient.PostAsJsonAsync(endpoint, mergeObject);
+            var response = await _httpClient.PostAsJsonAsync(endpoint, mergeObject);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<ActionResponse>();
@@ -69,7 +66,7 @@ namespace WebMerge.Client.Core
         {
             CheckRequest(request);
 
-            var response = await httpClient.PostAsJsonAsync("api/documents", request);
+            var response = await _httpClient.PostAsJsonAsync("api/documents", request);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<Document>();
@@ -87,7 +84,7 @@ namespace WebMerge.Client.Core
                 throw new WebMergeException("You cannot change the type of the document via the API");
             }
 
-            var response = await httpClient.PutAsJsonAsync($"api/documents/{documentId}", request);
+            var response = await _httpClient.PutAsJsonAsync($"api/documents/{documentId}", request);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<Document>();
@@ -113,7 +110,7 @@ namespace WebMerge.Client.Core
                 endpoint += $"?{string.Join("&", args)}";
             }
 
-            var response = await httpClient.GetAsync(endpoint);
+            var response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<List<Document>>();
@@ -121,21 +118,21 @@ namespace WebMerge.Client.Core
 
         public async Task<Document> GetDocumentAsync(int documentId)
         {
-            var response = await httpClient.GetAsync($"api/documents/{documentId}");
+            var response = await _httpClient.GetAsync($"api/documents/{documentId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<Document>();
         }
 
         public async Task<List<Field>> GetDocumentFieldsAsync(int documentId)
         {
-            var response = await httpClient.GetAsync($"api/documents/{documentId}/fields");
+            var response = await _httpClient.GetAsync($"api/documents/{documentId}/fields");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<List<Field>>();
         }
 
         public async Task<DocumentFile> GetFileForDocumentAsync(int documentId)
         {
-            var response = await httpClient.GetAsync($"api/documents/{documentId}/file");
+            var response = await _httpClient.GetAsync($"api/documents/{documentId}/file");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<DocumentFile>();
         }
@@ -148,14 +145,14 @@ namespace WebMerge.Client.Core
             }
 
             var content = new StringContent(JsonConvert.SerializeObject(new {name}), Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync($"api/documents/{documentId}/copy", content);
+            var response = await _httpClient.PostAsync($"api/documents/{documentId}/copy", content);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<Document>();
         }
 
         public async Task<ActionResponse> DeleteDocumentAsync(int documentId)
         {
-            var response = await httpClient.DeleteAsync($"api/documents/{documentId}");
+            var response = await _httpClient.DeleteAsync($"api/documents/{documentId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<ActionResponse>();
         }
@@ -169,7 +166,7 @@ namespace WebMerge.Client.Core
                 endpoint += "&test=1";
             }
 
-            var response = await httpClient.PostAsJsonAsync(endpoint, mergeObject);
+            var response = await _httpClient.PostAsJsonAsync(endpoint, mergeObject);
             response.EnsureSuccessStatusCode();
 
             try
@@ -194,7 +191,7 @@ namespace WebMerge.Client.Core
                 endpoint += "?test=1";
             }
 
-            var response = await httpClient.PostAsJsonAsync(endpoint, mergeObject);
+            var response = await _httpClient.PostAsJsonAsync(endpoint, mergeObject);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<ActionResponse>();
@@ -209,7 +206,7 @@ namespace WebMerge.Client.Core
                 endpoint += "&test=1";
             }
 
-            var response = await httpClient.PostAsJsonAsync(endpoint, mergeObject);
+            var response = await _httpClient.PostAsJsonAsync(endpoint, mergeObject);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<MultipleFileRouteRequestState>();
@@ -217,49 +214,49 @@ namespace WebMerge.Client.Core
 
         public async Task<List<DataRoute>> GetDataRouteListAsync()
         {
-            var response = await httpClient.GetAsync("api/routes");
+            var response = await _httpClient.GetAsync("api/routes");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<List<DataRoute>>();
         }
 
         public async Task<DataRoute> GetDataRouteAsync(int dataRouteId)
         {
-            var response = await httpClient.GetAsync($"api/routes/{dataRouteId}");
+            var response = await _httpClient.GetAsync($"api/routes/{dataRouteId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<DataRoute>();
         }
 
         public async Task<List<Field>> GetDataRouteFieldsAsync(int dataRouteId)
         {
-            var response = await httpClient.GetAsync($"api/routes/{dataRouteId}/fields");
+            var response = await _httpClient.GetAsync($"api/routes/{dataRouteId}/fields");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<List<Field>>();
         }
 
         public async Task<ActionResponse> DeleteDataRouteAsync(int dataRouteId)
         {
-            var response = await httpClient.DeleteAsync($"api/routes/{dataRouteId}");
+            var response = await _httpClient.DeleteAsync($"api/routes/{dataRouteId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsAsync<ActionResponse>();
         }
 
-        public void Dispose() => httpClient?.Dispose();
+        public void Dispose() => _httpClient?.Dispose();
 
         private void AddAuthentication()
         {
-            if (string.IsNullOrWhiteSpace(configurator.ApiKey))
+            if (string.IsNullOrWhiteSpace(_configurator.ApiKey))
             {
                 throw new ArgumentException("Missing Api Key value. Make sure the 'WebMerge.ApiKey' app setting contains your WebMerge API Key");
             }
 
-            if (string.IsNullOrWhiteSpace(configurator.ApiSecret))
+            if (string.IsNullOrWhiteSpace(_configurator.ApiSecret))
             {
                 throw new ArgumentException("Missing Api Secret value. Make sure there is an environment variable with the key 'WebMerge.ApiSecret' and your WebMerge API Secret value");
             }
 
-            var authBytes = Encoding.UTF8.GetBytes($"{configurator.ApiKey}:{configurator.ApiSecret}");
+            var authBytes = Encoding.UTF8.GetBytes($"{_configurator.ApiKey}:{_configurator.ApiSecret}");
             var authToken = Convert.ToBase64String(authBytes);
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
         }
 
         private void CheckRequest(DocumentRequest request)

@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <ApplicationIcon />
-    <OutputType>Library</OutputType>
-    <StartupObject />
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>.NET wrapper for WebMerge API</Description>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
