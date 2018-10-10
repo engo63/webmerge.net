@@ -7,13 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{22BD43EE-DE0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{797BFED1-C4B8-4B71-94A5-4326E0137FE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Client", "src\WebMerge.Client\WebMerge.Client.csproj", "{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Tests2", "WebMerge.Tests2\WebMerge.Tests2.csproj", "{98402B3E-90F2-4A11-B43F-91548FE4625D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Tests", "test\WebMerge.Tests\WebMerge.Tests.csproj", "{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Tests2", "WebMerge.Tests2\WebMerge.Tests2.csproj", "{98402B3E-90F2-4A11-B43F-91548FE4625D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMerge.Client.Core", "WebMerge.Client.Core\WebMerge.Client.Core.csproj", "{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Client.Core", "WebMerge.Client.Core\WebMerge.Client.Core.csproj", "{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98402B3E-90F2-4A11-B43F-91548FE4625D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,8 +30,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1195FD70-5F4E-4AEE-8F63-AEE1E3E76DEA} = {22BD43EE-DE02-43AE-AF48-6DDDF89A54C4}
-		{F9C1F5A1-FA0C-44E1-9A8F-4B216B1373D9} = {797BFED1-C4B8-4B71-94A5-4326E0137FE3}
 		{98402B3E-90F2-4A11-B43F-91548FE4625D} = {797BFED1-C4B8-4B71-94A5-4326E0137FE3}
 		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475} = {22BD43EE-DE02-43AE-AF48-6DDDF89A54C4}
 	EndGlobalSection
