@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{22BD43EE-DE0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{797BFED1-C4B8-4B71-94A5-4326E0137FE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Tests2", "WebMerge.Tests2\WebMerge.Tests.csproj", "{98402B3E-90F2-4A11-B43F-91548FE4625D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Client.Core.Tests", "WebMerge.Tests\WebMerge.Client.Core.Tests.csproj", "{98402B3E-90F2-4A11-B43F-91548FE4625D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Client.Core", "WebMerge.Client.Core\WebMerge.Client.Core.csproj", "{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}"
 EndProject
