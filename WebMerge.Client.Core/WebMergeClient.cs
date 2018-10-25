@@ -116,11 +116,11 @@ namespace WebMerge.Client.Core
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                var reasonPhrase = !string.IsNullOrWhiteSpace(folder) 
-                    ? "This folder does not exist" 
+                var reasonPhrase = !string.IsNullOrWhiteSpace(folder)
+                    ? "The folder does not exist"
                     : response.ReasonPhrase;
 
-                throw new WebMergeException(reasonPhrase);
+                throw new WebException(response.ReasonPhrase, new Exception(reasonPhrase));
             }
 
             response.EnsureSuccessStatusCode();

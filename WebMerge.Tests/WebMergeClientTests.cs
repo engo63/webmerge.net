@@ -12,6 +12,7 @@ using WebMerge.Client.Core.Enums;
 using WebMerge.Client.Core.Utils;
 using System.IO;
 using System.Collections.Generic;
+using System.Net;
 
 namespace WebMerge.Client.Core.Tests
 {
@@ -392,13 +393,13 @@ namespace WebMerge.Client.Core.Tests
         [Test]
         public async Task GetDocumentList_ShouldErrorWhenFolderNotExist()
         {
-            const string expected = @"[WebMerge Error]: This folder does not exist";
+            const string expected = "Not Found";
 
             messageHandler.AddResponse(new Uri("https://test.io/api/documents"), expected);
 
             Assert.That(async () => await client.GetDocumentListAsync("", "test"),
                 Throws.Exception
-                .TypeOf<WebMergeException>()
+                .TypeOf<WebException>()
                 .With.Property("Message")
                 .EqualTo(expected));
 
