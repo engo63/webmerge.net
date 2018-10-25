@@ -390,6 +390,21 @@ namespace WebMerge.Client.Core.Tests
         }
 
         [Test]
+        public async Task GetDocumentList_ShouldErrorWhenFolderNotExist()
+        {
+            const string expected = @"[WebMerge Error]: This folder does not exist";
+
+            messageHandler.AddResponse(new Uri("https://test.io/api/documents"), expected);
+
+            Assert.That(async () => await client.GetDocumentListAsync("", "test"),
+                Throws.Exception
+                .TypeOf<WebMergeException>()
+                .With.Property("Message")
+                .EqualTo(expected));
+
+        }
+
+        [Test]
         public async Task CorrectlyDeserialiseADocument()
         {
             const string exampleResponse = @"

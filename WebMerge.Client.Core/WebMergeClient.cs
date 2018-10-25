@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -110,7 +111,18 @@ namespace WebMerge.Client.Core
                 endpoint += $"?{string.Join("&", args)}";
             }
 
+
             var response = await _httpClient.GetAsync(endpoint);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                var reasonPhrase = !string.IsNullOrWhiteSpace(folder) 
+                    ? "This folder does not exist" 
+                    : response.ReasonPhrase;
+
+                throw new WebMergeException(reasonPhrase);
+            }
+
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<List<Document>>();
