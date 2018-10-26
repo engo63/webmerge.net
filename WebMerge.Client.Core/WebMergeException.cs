@@ -14,5 +14,10 @@ namespace WebMerge.Client.Core
             : base($"[WebMerge Error]: {message}")
         {
         }
+
+        public WebMergeException(string message, Exception innerException, WebExceptionStatus status, WebResponse response)
+            : base($"[WebMerge Error]: {message}", innerException, status, response)
+        {
+        }
     }
 }

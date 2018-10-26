@@ -397,7 +397,7 @@ namespace WebMerge.Client.Core.Tests
 
             messageHandler.AddResponse(new Uri("https://test.io/api/documents"), expected);
 
-            Assert.That(async () => await client.GetDocumentListAsync("", "test"),
+            Assert.That(async () => await client.GetDocumentListAsync(),
                 Throws.Exception
                 .TypeOf<WebException>()
                 .With.Property("Message")

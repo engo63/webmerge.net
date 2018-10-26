@@ -114,18 +114,25 @@ namespace WebMerge.Client.Core
 
             var response = await _httpClient.GetAsync(endpoint);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            if (!response.IsSuccessStatusCode)
             {
-                var reasonPhrase = !string.IsNullOrWhiteSpace(folder)
-                    ? "The folder does not exist"
-                    : response.ReasonPhrase;
+                var reasonPhrase = string.Empty;
 
-                throw new WebException(response.ReasonPhrase, new Exception(reasonPhrase));
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    reasonPhrase = !string.IsNullOrWhiteSpace(folder)
+                        ? "The folder does not exist"
+                        : "Not Found";
+
+                }
+
+
+                throw new WebMergeException($"{(int)response.StatusCode} - {response.StatusCode} : {reasonPhrase}",
+                    new Exception(response.ReasonPhrase), WebExceptionStatus.ProtocolError, null);
             }
 
-            response.EnsureSuccessStatusCode();
-
             return await response.Content.ReadAsAsync<List<Document>>();
+
         }
 
         public async Task<Document> GetDocumentAsync(int documentId)

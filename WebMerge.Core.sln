@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Client.Core.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMerge.Client.Core", "WebMerge.Client.Core\WebMerge.Client.Core.csproj", "{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{14F0C266-C837-4721-9B26-8F5D687C4A7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31E90226-4BC9-40E6-ACB8-FA46F5AC3475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14F0C266-C837-4721-9B26-8F5D687C4A7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14F0C266-C837-4721-9B26-8F5D687C4A7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14F0C266-C837-4721-9B26-8F5D687C4A7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14F0C266-C837-4721-9B26-8F5D687C4A7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
