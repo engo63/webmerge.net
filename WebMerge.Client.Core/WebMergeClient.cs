@@ -123,12 +123,9 @@ namespace WebMerge.Client.Core
                     reasonPhrase = !string.IsNullOrWhiteSpace(folder)
                         ? "The folder does not exist"
                         : "Not Found";
-
                 }
 
-
-                throw new WebMergeException($"{(int)response.StatusCode} - {response.StatusCode} : {reasonPhrase}",
-                    new Exception(response.ReasonPhrase), WebExceptionStatus.ProtocolError, null);
+                throw new WebMergeException($"{(int)response.StatusCode} - {response.StatusCode} : {reasonPhrase}", new Exception(response.ReasonPhrase));
             }
 
             return await response.Content.ReadAsAsync<List<Document>>();
